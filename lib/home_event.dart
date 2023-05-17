@@ -1,0 +1,1 @@
+enum HomeEvent { increment, decrement, reset }

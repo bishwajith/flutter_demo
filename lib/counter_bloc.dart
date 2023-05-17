@@ -1,19 +1,30 @@
-import 'dart:async';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class CounterBloc {
-  final StreamController<int> _steamController = StreamController<int>();
-  late StreamSink<int> sink;
-  late Stream<int> stream;
-  int counter = 0;
+import 'home_event.dart';
+import 'home_state.dart';
 
-  CounterBloc() {
-    sink = _steamController.sink;
-    stream = _steamController.stream;
-    sink.add(0);
-  }
-
-  increment() {
-    counter += 1;
-    sink.add(counter);
+class CounterBloc extends Bloc<HomeEvent, HomeState> {
+  CounterBloc() : super(HomeState()) {
+    on((event, emit) {
+      switch (event) {
+        case HomeEvent.increment:
+          {
+            final newState = state.copyWith(counter: state.counter + 1);
+            emit(newState);
+          }
+          break;
+        case HomeEvent.decrement:
+          {
+            final newState = state.copyWith(counter: state.counter - 1);
+            emit(newState);
+          }
+          break;
+        case HomeEvent.reset:
+          {
+            final newState = state.copyWith(counter: 0);
+            emit(newState);
+          }
+      }
+    });
   }
 }

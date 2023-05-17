@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/counter_bloc.dart';
 
+import 'home_event.dart';
+import 'home_state.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -60,6 +63,12 @@ class _MyHomePageState extends State<MyHomePage> {
   final CounterBloc _bloc = CounterBloc();
 
   @override
+  void initState() {
+    super.initState();
+    _bloc.add(HomeEvent.reset);
+  }
+
+  @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
     // by the _incrementCounter method above.
@@ -75,7 +84,12 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(widget.title),
+          ],
+        ),
       ),
       body: Center(
         // Center is a layout widget. It takes a single child and positions it
@@ -99,21 +113,37 @@ class _MyHomePageState extends State<MyHomePage> {
             const Text(
               'You have pushed the button this many times:',
             ),
-            StreamBuilder<int>(
+            StreamBuilder<HomeState>(
                 stream: _bloc.stream,
                 builder: (context, snapshot) {
                   return Text(
-                    '${snapshot.data}',
-                    style: Theme.of(context).textTheme.headlineMedium,
+                    "${snapshot.data?.counter}",
+                    style: Theme.of(context).textTheme.titleLarge,
                   );
-                }),
+                })
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _bloc.increment(),
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              onPressed: () => _bloc.add(HomeEvent.increment),
+              tooltip: 'Increment',
+              child: const Icon(Icons.plus_one),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton(
+              onPressed: () => _bloc.add(HomeEvent.decrement),
+              tooltip: 'Decrement',
+              child: const Icon(Icons.exposure_minus_1),
+            ),
+          ),
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
