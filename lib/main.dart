@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/counter_bloc.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_demo/home_bloc.dart';
+import 'package:flutter_demo/my_list_widget.dart';
+import 'package:google_fonts/google_fonts.dart';
 
+import 'colors.dart';
 import 'home_event.dart';
 import 'home_state.dart';
 
@@ -14,29 +18,43 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => HomeBloc(),
+        )
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          textTheme: Theme.of(context).textTheme.apply(
+              fontFamily: GoogleFonts.montserrat().fontFamily,
+              bodyColor: Colors.white,
+              displayColor: Colors.white),
+          // This is the theme of your application.
+          //
+          // TRY THIS: Try running your application with "flutter run". You'll see
+          // the application has a blue toolbar. Then, without quitting the app,
+          // try changing the seedColor in the colorScheme below to Colors.green
+          // and then invoke "hot reload" (save your changes or press the "hot
+          // reload" button in a Flutter-supported IDE, or press "r" if you used
+          // the command line to start the app).
+          //
+          // Notice that the counter didn't reset back to zero; the application
+          // state is not lost during the reload. To reset the state, use hot
+          // restart instead.
+          //
+          // This works for code too, not just values: Most code changes can be
+          // tested with just a hot reload.
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: const Color(colorAccent),
+              primary: Colors.black,
+              onPrimary: Colors.white70),
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(title: 'The Kitchen~'),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
@@ -60,12 +78,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final CounterBloc _bloc = CounterBloc();
+  late HomeBloc _bloc;
 
   @override
   void initState() {
     super.initState();
-    _bloc.add(HomeEvent.reset);
+    _bloc = context.read<HomeBloc>();
+    _bloc.add(InitEvent());
   }
 
   @override
@@ -81,70 +100,77 @@ class _MyHomePageState extends State<MyHomePage> {
         // TRY THIS: Try changing the color here to a specific color (to
         // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
         // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         // Here we take the value from the MyHomePage object that was created by
         // the App.build method, and use it to set our appbar title.
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(widget.title),
+            Text(widget.title,
+                style: Theme.of(context).textTheme.headlineSmall),
+            Container(
+              decoration: BoxDecoration(
+                  color: const Color(colorAccent),
+                  borderRadius: BorderRadius.circular(4)),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.all(2.0),
+                    child: Icon(Icons.shopping_cart),
+                  ),
+                  Container(
+                      width: 24,
+                      padding: const EdgeInsets.all(2.0),
+                      child: BlocBuilder<HomeBloc, HomeState>(
+                          bloc: _bloc,
+                          buildWhen: (previous, current) {
+                            if (previous is HomeStateLoaded) {
+                              if (current is HomeStateLoaded &&
+                                  (current.counter != previous.counter)) {
+                                return true;
+                              }
+                              return false;
+                            } else if (current is HomeStateLoaded) {
+                              return true;
+                            } else {
+                              return false;
+                            }
+                          },
+                          builder: (context, state) {
+                            final data =
+                                (state is HomeStateLoaded) ? state.counter : "";
+                            return Text(
+                              "$data",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(color: Colors.black),
+                            );
+                          })),
+                ],
+              ),
+            )
           ],
         ),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+      body: Container(
+        color: const Color(colorAppBackground),
+        child: Center(
+          // Center is a layout widget. It takes a single child and positions it
+          // in the middle of the parent.
+          child: RefreshIndicator(
+            onRefresh: () async {
+              context.read<HomeBloc>().add(RefreshEvent());
+            },
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: MyListWidget(),
             ),
-            StreamBuilder<HomeState>(
-                stream: _bloc.stream,
-                builder: (context, snapshot) {
-                  return Text(
-                    "${snapshot.data?.counter}",
-                    style: Theme.of(context).textTheme.titleLarge,
-                  );
-                })
-          ],
+          ),
         ),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: FloatingActionButton(
-              onPressed: () => _bloc.add(HomeEvent.increment),
-              tooltip: 'Increment',
-              child: const Icon(Icons.plus_one),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: FloatingActionButton(
-              onPressed: () => _bloc.add(HomeEvent.decrement),
-              tooltip: 'Decrement',
-              child: const Icon(Icons.exposure_minus_1),
-            ),
-          ),
-        ],
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      //This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
