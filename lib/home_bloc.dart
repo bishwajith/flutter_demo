@@ -30,6 +30,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                 foodItem.qty == 0 ? (currState.counter + 1) : currState.counter;
             currState.foodItems[addEvent.index] =
                 foodItem.copyWith(qty: foodItem.qty + 1);
+            if(totalCounter > currState.counter) {
+              emit(ShowSnackBar("Item added to cart"));
+            }
             emit(currState.copyWith(
                 foodItems: currState.foodItems, counter: totalCounter));
           }

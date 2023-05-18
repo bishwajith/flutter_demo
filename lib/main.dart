@@ -95,82 +95,95 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(widget.title,
-                style: Theme.of(context).textTheme.headlineSmall),
-            Container(
-              decoration: BoxDecoration(
-                  color: const Color(colorAccent),
-                  borderRadius: BorderRadius.circular(4)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.all(2.0),
-                    child: Icon(Icons.shopping_cart),
-                  ),
-                  Container(
-                      width: 24,
-                      padding: const EdgeInsets.all(2.0),
-                      child: BlocBuilder<HomeBloc, HomeState>(
-                          bloc: _bloc,
-                          buildWhen: (previous, current) {
-                            if (previous is HomeStateLoaded) {
-                              if (current is HomeStateLoaded &&
-                                  (current.counter != previous.counter)) {
+    return BlocListener(
+      listener: (context, state) {
+        if (state is ShowSnackBar) {
+          final snackBar = SnackBar(
+            content: Text(state.message),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+        }
+      },
+      bloc: _bloc,
+      listenWhen: (previous, current) => current is HomeStateAction,
+      child: Scaffold(
+        appBar: AppBar(
+          // TRY THIS: Try changing the color here to a specific color (to
+          // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
+          // change color while the other colors stay the same.
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(widget.title,
+                  style: Theme.of(context).textTheme.headlineSmall),
+              Container(
+                decoration: BoxDecoration(
+                    color: const Color(colorAccent),
+                    borderRadius: BorderRadius.circular(4)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.all(2.0),
+                      child: Icon(Icons.shopping_cart),
+                    ),
+                    Container(
+                        width: 24,
+                        padding: const EdgeInsets.all(2.0),
+                        child: BlocBuilder<HomeBloc, HomeState>(
+                            bloc: _bloc,
+                            buildWhen: (previous, current) {
+                              if (previous is HomeStateLoaded) {
+                                if (current is HomeStateLoaded &&
+                                    (current.counter != previous.counter)) {
+                                  return true;
+                                }
+                                return false;
+                              } else if (current is HomeStateLoaded) {
                                 return true;
+                              } else {
+                                return false;
                               }
-                              return false;
-                            } else if (current is HomeStateLoaded) {
-                              return true;
-                            } else {
-                              return false;
-                            }
-                          },
-                          builder: (context, state) {
-                            final data =
-                                (state is HomeStateLoaded) ? state.counter : "";
-                            return Text(
-                              "$data",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(color: Colors.black),
-                            );
-                          })),
-                ],
-              ),
-            )
-          ],
+                            },
+                            builder: (context, state) {
+                              final data = (state is HomeStateLoaded)
+                                  ? state.counter
+                                  : "";
+                              return Text(
+                                "$data",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleMedium
+                                    ?.copyWith(color: Colors.black),
+                              );
+                            })),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
-      ),
-      body: Container(
-        color: const Color(colorAppBackground),
-        child: Center(
-          // Center is a layout widget. It takes a single child and positions it
-          // in the middle of the parent.
-          child: RefreshIndicator(
-            onRefresh: () async {
-              context.read<HomeBloc>().add(RefreshEvent());
-            },
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: MyListWidget(),
+        body: Container(
+          color: const Color(colorAppBackground),
+          child: Center(
+            // Center is a layout widget. It takes a single child and positions it
+            // in the middle of the parent.
+            child: RefreshIndicator(
+              onRefresh: () async {
+                context.read<HomeBloc>().add(RefreshEvent());
+              },
+              child: Padding(
+                padding: EdgeInsets.all(8.0),
+                child: MyListWidget(),
+              ),
             ),
           ),
         ),
+        //This trailing comma makes auto-formatting nicer for build methods.
       ),
-      //This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }

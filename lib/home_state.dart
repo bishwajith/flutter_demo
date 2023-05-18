@@ -2,13 +2,20 @@ import 'package:equatable/equatable.dart';
 
 abstract class HomeState {}
 
+abstract class HomeStateAction extends HomeState {}
+
+class ShowSnackBar extends HomeStateAction {
+  final String message;
+
+  ShowSnackBar(this.message);
+}
+
 class HomeStateLoading extends HomeState {}
 
 class HomeStateError extends HomeState {
   final String errorMessage;
 
   HomeStateError(this.errorMessage);
-
 }
 
 class HomeStateLoaded extends HomeState {
