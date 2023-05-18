@@ -1,27 +1,16 @@
 import 'package:equatable/equatable.dart';
 
-abstract class HomeState {}
-
-class HomeStateLoading extends HomeState {}
-
-class HomeStateError extends HomeState {
-  final String errorMessage;
-
-  HomeStateError(this.errorMessage);
-
-}
-
-class HomeStateLoaded extends HomeState {
+class HomeState {
   final int counter;
   final List<FoodItem> foodItems;
 
-  HomeStateLoaded({this.counter = 0, required this.foodItems});
+  HomeState({this.counter = 0, required this.foodItems});
 
-  HomeStateLoaded copyWith({
+  HomeState copyWith({
     int? counter,
     List<FoodItem>? foodItems,
   }) {
-    return HomeStateLoaded(
+    return HomeState(
       counter: counter ?? this.counter,
       foodItems: foodItems ?? this.foodItems,
     );

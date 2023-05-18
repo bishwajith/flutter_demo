@@ -7,31 +7,25 @@ import 'home_state.dart';
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final FoodRepository _foodRepository = FoodRepository();
 
-  HomeBloc() : super(HomeStateLoading()) {
+  HomeBloc() : super(HomeState(foodItems: [], counter: 0)) {
     on((event, emit) async {
       switch (event.runtimeType) {
         case InitEvent:
-        case RefreshEvent:
           {
-            emit(HomeStateLoading());
-            await _foodRepository.getFoodList().then((list) {
-              final newState = HomeStateLoaded(foodItems: list);
-              emit(newState);
-            }, onError: (error) {
-              emit(HomeStateError((error as Exception).toString()));
-            });
+            final list = await _foodRepository.getFoodList();
+            final newState = state.copyWith(foodItems: list);
+            emit(newState);
           }
         case AddEvent:
           {
             final addEvent = (event as AddEvent);
-            final currState = (state as HomeStateLoaded);
-            final foodItem = currState.foodItems[addEvent.index];
+            final foodItem = state.foodItems[addEvent.index];
             int totalCounter =
-                foodItem.qty == 0 ? (currState.counter + 1) : currState.counter;
-            currState.foodItems[addEvent.index] =
+                foodItem.qty == 0 ? (state.counter + 1) : state.counter;
+            state.foodItems[addEvent.index] =
                 foodItem.copyWith(qty: foodItem.qty + 1);
-            emit(currState.copyWith(
-                foodItems: currState.foodItems, counter: totalCounter));
+            emit(state.copyWith(
+                foodItems: state.foodItems, counter: totalCounter));
           }
       }
     });

@@ -109,12 +109,11 @@ class _MyHomePageState extends State<MyHomePage> {
             Text(widget.title,
                 style: Theme.of(context).textTheme.headlineSmall),
             Container(
-              decoration: BoxDecoration(
-                  color: const Color(colorAccent),
-                  borderRadius: BorderRadius.circular(4)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
+                decoration: BoxDecoration(
+                    color: const Color(colorAccent),
+                    borderRadius: BorderRadius.circular(4)),
+                child:
+                    Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                   const Padding(
                     padding: EdgeInsets.all(2.0),
                     child: Icon(Icons.shopping_cart),
@@ -122,51 +121,28 @@ class _MyHomePageState extends State<MyHomePage> {
                   Container(
                       width: 24,
                       padding: const EdgeInsets.all(2.0),
-                      child: BlocBuilder<HomeBloc, HomeState>(
-                          bloc: _bloc,
-                          buildWhen: (previous, current) {
-                            if (previous is HomeStateLoaded) {
-                              if (current is HomeStateLoaded &&
-                                  (current.counter != previous.counter)) {
-                                return true;
-                              }
-                              return false;
-                            } else if (current is HomeStateLoaded) {
-                              return true;
-                            } else {
-                              return false;
-                            }
-                          },
-                          builder: (context, state) {
-                            final data =
-                                (state is HomeStateLoaded) ? state.counter : "";
-                            return Text(
-                              "$data",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(color: Colors.black),
-                            );
-                          })),
-                ],
-              ),
-            )
+                      child: StreamBuilder<HomeState>(
+                        builder: (context, snapshot) => Text(
+                          "${snapshot.data?.counter}",
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(color: Colors.black),
+                        ),
+                        stream: _bloc.stream,
+                      ))
+                ])),
           ],
         ),
       ),
       body: Container(
         color: const Color(colorAppBackground),
-        child: Center(
+        child: const Center(
           // Center is a layout widget. It takes a single child and positions it
           // in the middle of the parent.
-          child: RefreshIndicator(
-            onRefresh: () async {
-              context.read<HomeBloc>().add(RefreshEvent());
-            },
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: MyListWidget(),
-            ),
+          child: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: MyListWidget(),
           ),
         ),
       ),

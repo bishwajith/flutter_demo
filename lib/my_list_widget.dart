@@ -12,32 +12,15 @@ class MyListWidget extends StatelessWidget {
     return BlocBuilder<HomeBloc, HomeState>(
         bloc: context.read<HomeBloc>(),
         builder: (context, state) {
-          if (state is HomeStateLoading) {
-            return const CircularProgressIndicator();
-          } else if (state is HomeStateError) {
-            return ListView(
-              children: [
-                Center(
-                  child: Text(
-                    state.errorMessage,
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                )
-              ],
-            );
-          } else if (state is HomeStateLoaded) {
-            final foodItems = state.foodItems;
-            return ListView.builder(
-                itemBuilder: (context, index) {
-                  return MyItemWidget(
-                    foodItem: foodItems[index],
-                    index: index,
-                  );
-                },
-                itemCount: state.foodItems.length);
-          } else {
-            return const SizedBox.shrink();
-          }
+          final foodItems = state.foodItems;
+          return ListView.builder(
+              itemBuilder: (context, index) {
+                return MyItemWidget(
+                  foodItem: foodItems[index],
+                  index: index,
+                );
+              },
+              itemCount: state.foodItems.length);
         });
   }
 }

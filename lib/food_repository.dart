@@ -8,9 +8,9 @@ class FoodRepository {
   Future<List<FoodItem>> getFoodList() async {
     await Future.delayed(const Duration(seconds: 2));
     final faker = Faker();
-    if (faker.randomGenerator.boolean()) {
-      throw TimeoutException("Request time out");
-    }
+    // if (faker.randomGenerator.boolean()) {
+    //   throw TimeoutException("Request time out");
+    // }
     final list = List.generate(5, (index) {
       final name = faker.food.cuisine();
       final imageUrl = faker.image
